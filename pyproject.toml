@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "pynlp-doe"
+version = "0.1.0"
+description = ""
+authors = ["Vitor Alcântara Batista <vabatista@gmail.com>"]
+readme = "README.md"
+packages = [{include = "pynlp_doe"}]
+
+[tool.poetry.dependencies]
+python = "3.10.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
