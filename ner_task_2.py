@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+# type: ignore
 """
 Fine-tuning the library models for token classification.
 """
@@ -52,9 +53,9 @@ def main():
 
     transformers.utils.logging.set_verbosity_info()
 
-    log_level = 'DEBUG'
+    log_level = 'INFO'
     logger.setLevel(log_level)
-    datasets.utils.logging.set_verbosity(log_level)
+    datasets.utils.logging.set_verbosity(log_level) 
     transformers.utils.logging.set_verbosity(log_level)
     transformers.utils.logging.enable_default_handler()
     transformers.utils.logging.enable_explicit_format()
@@ -64,7 +65,7 @@ def main():
     output_dir = '../pynlp-doe-output'
     if os.path.isdir(output_dir):
         last_checkpoint = get_last_checkpoint(output_dir)
-        if last_checkpoint is not None and training_args.resume_from_checkpoint is None:
+        if last_checkpoint is not None:
             logger.info(
                 f"Checkpoint detected, resuming training at {last_checkpoint}. To avoid this behavior, change "
                 "the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
@@ -72,8 +73,10 @@ def main():
 
     set_seed(5)
 
+    dataset_name = 'conll2003'
     model_name = 'bert-base-cased'
-    raw_datasets = load_dataset('wnut_17')
+    raw_datasets = load_dataset(dataset_name)
+    num_epochs = 1
 
     column_names = raw_datasets["train"].column_names
     features = raw_datasets["train"].features
@@ -271,10 +274,23 @@ def main():
                 "accuracy": results["overall_accuracy"],
             }
 
+    training_args = TrainingArguments(
+        output_dir=output_dir,
+        evaluation_strategy='epoch',
+        learning_rate=2e-5,
+        #per_device_train_batch_size=16,
+        #per_device_eval_batch_size=64,
+        num_train_epochs=num_epochs,
+        weight_decay=0.01,
+        push_to_hub=False,
+        logging_dir=os.path.join(output_dir,'logs'),
+        #logging_steps=10,
+    )
+
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
-        #args=training_args,
+        args=training_args,
         train_dataset=train_dataset, 
         eval_dataset=eval_dataset, 
         tokenizer=tokenizer,
