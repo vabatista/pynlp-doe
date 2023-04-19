@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 # Copyright 2020 The HuggingFace Team All rights reserved.
+## source: https://github.com/huggingface/transformers/blob/main/examples/pytorch/token-classification/run_ner.py
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +19,8 @@ Fine-tuning the library models for token classification.
 """
 # You can also adapt this script on your own token classification task and datasets. Pointers for this are left as
 # comments.
+
+# type: ignore
 
 import logging
 import os
