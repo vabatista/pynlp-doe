@@ -22,7 +22,7 @@ class ANOVA:
 		for factor_combination in product(*self.levels_list):
 			line = {}
 			for idx, factor in enumerate(self.factors):
-				line[factor] = factor_combination[idx]
+				line[factor] = str(factor_combination[idx])
 			for k in range(self.replicates):
 				lines.append(line)
 		df = pd.DataFrame(lines,columns=self.factors)
@@ -31,8 +31,6 @@ class ANOVA:
 
 	def exec_anova(self):
 
-		total = np.prod([len(x) for x in self.levels_list]) * self.replicates
-		#y_measures = np.random.rand(total) # type: ignore #([28,25,27,18,19,23,36,32,32,31,30,29,28,25,22,18,19,23,12,32,40,31,30,29])
 		df = self.generate_dataframe() 
 
-		return df.anova(dv='y', between=factors, ss_type=3).round(3) # type: ignore
+		return df.anova(dv='y', between=self.factors, ss_type=3).round(3) # type: ignore

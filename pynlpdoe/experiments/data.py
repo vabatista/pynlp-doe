@@ -13,7 +13,8 @@ class Dataset:
 	tokenizer: AutoTokenizer
 	NUM_PROC = 4
 	label_column_name: str = "ner_tags"     
-
+	TRAIN_SAMPLES_FRACTION = 5
+ 
 	## Receive parameters to load hugging face dataset. 
 	## For instance, dataset tner/wikineural has several subsets for each language and
 	## needs to pass the language also: ['tner/wikineural', 'pt']
@@ -36,11 +37,12 @@ class Dataset:
 		pass
 
 	def getTrainSplit(self):
-		return self.hf_dataset['train'].map(
-			self._tokenize_and_align_labels,
-			batched=True,
-			num_proc=self.NUM_PROC,
-			desc="Tokenizing train dataset",
+		return self.hf_dataset['train'].select(range(
+	 		int(len(self.hf_dataset['train'])/self.TRAIN_SAMPLES_FRACTION))).map(
+				self._tokenize_and_align_labels,
+				batched=True,
+				num_proc=self.NUM_PROC,
+				desc="Tokenizing train dataset",
 		)
 	
 	def getValidationSplit(self):

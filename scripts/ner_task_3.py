@@ -72,7 +72,7 @@ def main():
 				"the `--output_dir` or add `--overwrite_output_dir` to train from scratch."
 			)
 
-	set_seed(5)
+	
 
 	dataset_name = ['conll2003']
 	ds = Dataset(dataset_name)

@@ -52,7 +52,7 @@ class Treatment:
 	output_dir = '../pynlpdoe-output'
 	label_list: list = []
 	metric = None
- 
+
 	def __init__(self, dataset: Dataset, model_name, seed):
 		self.model_name = model_name
 		self.dataset = dataset
@@ -60,21 +60,20 @@ class Treatment:
   
   
 	def compute_metrics(self, p):
-		predictions, labels = p
+		predictions, labels = p # type: ignore
 		predictions = np.argmax(predictions, axis=2)
-		label_list = self.label_list
-		metric = self.metric
+
 		# Remove ignored index (special tokens)
 		true_predictions = [
-			[label_list[p] for (p, l) in zip(prediction, label) if l != -100]
+			[self.label_list[p] for (p, l) in zip(prediction, label) if l != -100]
 			for prediction, label in zip(predictions, labels)
 		]
 		true_labels = [
-			[label_list[l] for (p, l) in zip(prediction, label) if l != -100]
+			[self.label_list[l] for (p, l) in zip(prediction, label) if l != -100]
 			for prediction, label in zip(predictions, labels)
 		]
 
-		results = self.metric.compute(predictions=true_predictions, references=true_labels)  # type: ignore
+		results = self.metric.compute(predictions=true_predictions, references=true_labels, )  # type: ignore
 		return {
 			"precision": results["overall_precision"], # type: ignore
 			"recall": results["overall_recall"], # type: ignore
@@ -114,7 +113,8 @@ class Treatment:
 
 		model = AutoModelForTokenClassification.from_pretrained(
 			model_name,
-			config=config
+			config=config,
+			ignore_mismatched_sizes=True
 		)
 
 		# Tokenizer check: this script requires a fast tokenizer.
@@ -134,8 +134,9 @@ class Treatment:
 		model.config.label2id = {l: i for i, l in enumerate(ds.label_list)}
 		model.config.id2label = dict(enumerate(ds.label_list))
 
-		label_list = ds.label_list
-		# Data collator
+		self.label_list = ds.label_list
+		
+  		# Data collator
 		data_collator = DataCollatorForTokenClassification(tokenizer)
 
 		# Metrics
@@ -161,10 +162,11 @@ class Treatment:
 			tokenizer=tokenizer,
 			data_collator=data_collator,
 			compute_metrics=self.compute_metrics # type: ignore
-   			#self.compute_metrics(EvalPrediction(predictions=preds, label_ids=label_ids),  self.metrics_extra_args)
+   			#compute_metrics = self.compute_metrics(EvalPrediction(predictions=preds, label_ids=label_ids),  self.metrics_extra_args)
 		)
 
 		# Training
+		logger.info("*** Training started ***")
 		checkpoint = None
 		# if last_checkpoint is not None:
 		# 	checkpoint = last_checkpoint
@@ -181,12 +183,12 @@ class Treatment:
 		# Predict
 		logger.info("*** Predict ***")
 
-		predictions, labels, metrics = trainer.predict(predict_dataset, metric_key_prefix="predict") # type: ignore
+		predictions, labels, metrics = trainer.predict(predict_dataset) # type: ignore
 		predictions = np.argmax(predictions, axis=2)
 
 		# Remove ignored index (special tokens)
 		true_predictions = [
-			[label_list[p] for (p, l) in zip(prediction, label) if l != -100]
+			[self.label_list[p] for (p, l) in zip(prediction, label) if l != -100]
 			for prediction, label in zip(predictions, labels) # type: ignore
 		]
 
