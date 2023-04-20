@@ -1,8 +1,5 @@
-from pynlpdoe.experiments import Model
 from pynlpdoe.anova import ANOVA
 import numpy as np
-
-m = Model()
 
 list_of_seeds = [5, 42] # repetitions
 list_of_models = ['bert-base-cased', 'dslim/bert-base-NER']

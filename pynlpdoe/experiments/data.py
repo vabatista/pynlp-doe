@@ -24,6 +24,7 @@ class Dataset:
 		self.hf_dataset = load_dataset(*dataset_params)		
 		if "train" not in self.hf_dataset:
 			raise ValueError("--do_train requires a train dataset")
+
 		if 'ner_tags' in self.hf_dataset['train'].features:
 			self.label_column_name = "ner_tags"
 		elif 'tags' in self.hf_dataset['train'].features:
